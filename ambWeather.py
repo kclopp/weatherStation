@@ -34,6 +34,15 @@ fieldName = []
 for key, value in ld.items():
     fieldName.append(key)
 
+# Adds two custome field names for off line measurements 
+fieldName.append("soildMoisture")
+fieldName.append("SoidTemp")
+
+fieldValue = []
+for key, value in ld.items():
+    fieldValue.append(value)
+
+'''
 path = Path('test.csv')
 
 if (True == path.is_file()):
@@ -47,7 +56,40 @@ else:
         writer.writeheader()
         writer.writerow(ld)
 
+'''
+
 ##pprint(fieldName)
 pprint(r)
 #pprint(ld)
+
+#This ends the portion scraping data from my PWS and creating a spreadsheed
+
+#This begins comunicating with Google sheets
+
+scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+
+creds = accCreds.from_json_keyfile_name("creds.json", scope)
+
+client = gspread.authorize(creds)
+
+sheet = client.open("ambWeather").sheet1
+
+data = sheet.cell(1,1)
+
+a = str(data)
+
+if a == "<Cell R1C1 None>":
+    # Inserts File Headers
+    sheet.insert_row(fieldName, 1)
+    sheet.insert_row(fieldValue, 2)
+else:
+    #Inserts fresh data at row two pushing old data down
+    sheet.insert_row(fieldValue, 2)
+
+#print(a)
+#print(type(a))
+#print(data)
+
+
+
 
